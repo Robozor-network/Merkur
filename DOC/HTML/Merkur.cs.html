@@ -1,0 +1,445 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3c.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title> Robot Merkur </title>
+    <meta name="keywords" content="Robot Merkur, robot na čáru">
+    <meta name="description" content="Robot Merkur na čáru čára sledování čáry">
+    <!-- AUTOINCLUDE START "Page/Head.cs.ihtml" DO NOT REMOVE -->
+    <link rel="StyleSheet" href="../../../../../Web/CSS/MLAB.css" type="text/css" title="MLAB základní styl">
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../Web/PIC/MLAB.ico">
+    <script type="text/javascript" src="../../../../../Web/JS/MLAB_Menu.js"></script>
+    <!-- AUTOINCLUDE END -->
+    <style type="text/css">
+      img.Pic1 {position:absolute;margin-left:23px;margin-top:223px;}
+      img.Pic2 {position:absolute;margin-left:276px;margin-top:137px;}
+      img.Pic3 {position:absolute;margin-left:465px;margin-top:235px;}
+      img.Pic4 {position:absolute;margin-left:308px;margin-top:187px;}
+      img.Pic5 {position:absolute;margin-left:250px;margin-top:7px;}
+      img.Pic6 {position:absolute;margin-left:328px;margin-top:9px;}
+      img.Pic7 {position:absolute;margin-left:452px;margin-top:82px;}
+      img.Pic8 {position:absolute;margin-left:35px;margin-top:10px;}
+    </style>  
+</head>
+
+  <body lang="cs">
+
+    <!-- AUTOINCLUDE START "Page/Header.cs.ihtml" DO NOT REMOVE -->
+    <!-- ============== HLAVICKA ============== -->
+    <div class="Header">
+      <script type="text/javascript">
+      <!--
+        SetRelativePath("../../../../../");
+        DrawHeader();
+      // -->
+      </script>
+      <noscript>
+        <p><b> Pro zobrazení (vložení) hlavičky je potřeba JavaScript </b></p>
+      </noscript>
+    </div>
+    <!-- AUTOINCLUDE END -->
+
+    <!-- AUTOINCLUDE START "Page/Menu.cs.ihtml" DO NOT REMOVE -->
+    <!-- ============== MENU ============== -->
+    <div class="Menu">
+      <script type="text/javascript">
+      <!--
+        SetRelativePath("../../../../../");
+        DrawMenu();
+      // -->
+      </script>
+      <noscript>
+        <p><b> Pro zobrazení (vložení) menu je potřeba JavaScript </b></p>
+      </noscript>
+    </div>
+    <!-- AUTOINCLUDE END -->
+
+    <!-- ============== TEXT ============== -->
+    <div class="Text">
+      <p class="Title">
+        Robot Merkur
+      </p>
+      <p class=Autor>
+        Jakub Kákona
+      </p>
+      <p class="Subtitle">
+        Robot Merkur byl postaven jako soutěžní robot na soutěž ISTROBOT 2005.
+        Název robota vnikl ze jména nejrychlejší planety Sluneční soustavy
+        Merkura. V&nbsp;římské mytologii byl Merkur považován za ochránce
+        cestovatelů, obchodníků, ale i zlodějů.
+      </p>
+      <p class="Subtitle">
+        <img width="605" height="454" src="Pictures/Merkur.jpg" 
+         alt="Robot Merkur">
+      </p>
+      <p>
+        <a href="../Merkur.cs.pdf"><img class="NoBorder"
+           src="../../../../../Web/PIC/FileIco_PDF.ico"
+           alt="Acrobat">&nbsp;PDF verze</a>
+      </p>
+      
+      <h1> Robot Merkur </h1>
+
+      <p>
+        Obrázek ukazuje robot Merkur s popiskami.
+      </p>
+      
+      <p>
+        <img class="Pic1" width="147" height="129" src="Pictures/image002.gif" 
+         alt="Čárový popisek: Baterie">
+        <img class="Pic2" width="125" height="267" src="Pictures/image003.gif" 
+         alt="Čárový popisek: Pípák">
+        <img class="Pic3" width="126" height="202" src="Pictures/image004.gif" 
+         alt="Čárový popisek: Čidla na čáru">
+        <img class="Pic4" width="164" height="177" src="Pictures/image005.gif" 
+         alt="Čárový popisek: Přepínač programů">
+        <img class="Pic5" width="127" height="117" src="Pictures/image006.gif"
+         alt="Čárový popisek: Stabilizátor napětí">
+        <img class="Pic6" width="241" height="108" src="Pictures/image007.gif"
+         alt="Čárový popisek: Deska s procesorem">
+        <img class="Pic7" width="129" height="89" src="Pictures/image008.gif"
+         alt="Čárový popisek: Čidlo na překážku">
+        <img class="Pic8" width="139" height="72" src="Pictures/image009.gif"
+         alt="Čárový popisek: H-můstky">
+        <img width="605" height="454" src="Pictures/Merkur.jpg" 
+         alt="Robot Merkur">         
+      </p>
+      
+      <h2>
+        Řídící elektronika
+      </h2>
+      <p>
+        Pro snímání černé čáry jsou použita UV čidla z&nbsp;inkoustových
+        tiskáren (původně určená pro měření kvality papíru), čidlo na překážku
+        (předpokládá se cihla) je průmyslový LED senzor určený na počítání
+        výrobků na běžícím pásu.
+      </p>
+      <p>
+        Čidla jsou přímo připojena na mikroprocesor PIC16F88, ten řídí pohyb
+        robota pomocí H můstkového regulátoru napojeného na stejnosměrné motory
+        a převodovku, jeho zapojení je převzato z&nbsp;konstrukce čínských
+        autíček na dálkové ovládání.
+      </p>
+      <h2>
+        Mechanická konstrukce
+      </h2>
+      <p>
+        Kostra robota&nbsp; je postavena z&nbsp;několika dílů stavebnice
+        MERKUR, ke kostře je připevněna řídící elektronika ze stavebnice MLAB,
+        dobrá elektrická vodivost kovové kostry je využita k&nbsp;rozvodu
+        záporného pólu napájecí baterie, k&nbsp;pohonu jsou i přes velké potíže
+        se spolehlivostí použity originální merkurácké motory (během vývoje
+        bylo třeba každý motor několikrát rozebrat a přilepit utržený pastorek
+        zpět na motor).
+      </p>
+      <p>
+        Pro správnou dynamičnost pohybu robota bylo třeba zjistit správnou
+        vzdálenost mezi senzory na snímání čáry a osou kol, tato vzdálenost
+        odpovídá dvojnásobku předpokládaného středního rádiusu zatáčky na
+        trati. Důležitý je také rozchod kol, tady platí že čím je větší, tím
+        méně musí robot v&nbsp;zatáčce zpomalovat, zároveň je ale třeba brát
+        v&nbsp;úvahu rozměry tunelu umístěného na trati.
+      </p>
+      <p>
+        <img width="444" height="216" src="Pictures/image011.gif" 
+         alt="Trajektorie">
+      </p>
+      <h2>
+        Popis programu
+      </h2>
+      <p>
+        Program pracuje na následujícím principu. Pokud robot vidí čáru,
+        zaznamená si, pod kterým čidlem ji vidí a jede rovně. Pokud čáru
+        nevidí, tak jede tam, kde ji viděl naposled. Pokud zatáčí již příliš
+        dlouho, znamená to, že čáru ztratil. Potom zacouvá, popojede rovně
+        vpřed a snaží se čáru nalézt pomocí velmi mazané rutiny „cikcak“.
+      </p>
+      <p>
+        Objetí překážky je založeno na předpokladu, že čára za překážkou 
+        pokračuje ve stejném směru jako před ní. Robot po nárazu na překážku 
+        couvne a vycentruje se na čáru. Potom překážku slepě objede. Po 
+        znovunalezení čáry se přepokládá, že čáru přejel a otočí se ve směru 
+        objíždění, aby se znovu vycentroval na čáru.
+      </p>      
+      <h1 lang="SK">
+        Propozície kategórie Stopár 
+      </h1>
+      <p>
+        <img width="600" height="44" src="Pictures/image012.gif" 
+         alt="Logo soutěže">
+      </p>
+      <h2 lang="SK">
+        Súťažná úloha
+      </h2>
+      <p lang="SK" >
+        Zostrojiť elektronicky riadeného autonómneho mobilného robota, ktorý 
+        prejde po určenej dráhe a v&nbsp;časovom limite do cieľa. Smer 
+        a&nbsp;trasa je daná namaľovaným tmavým pruhom, na dráhe sú umiestnené 
+        rozličné prekážky.
+      </p>
+      <p lang="SK">
+        Toto zadanie prestavuje reálnu úlohu napríklad pre automatické skladové 
+        manipulátory a podobne.
+      </p>
+      <h2 lang="SK">
+        Dráha
+      </h2>
+      <p lang="SK">
+        Podklad dráhy bude svetlý (biely) s&nbsp;tmavou (čiernou) vodiacou 
+        čiarou šírky 15+/-1&nbsp;mm. Celková dĺžka dráhy nepresiahne 20&nbsp;m. 
+        Materiál bude papier, drevo, linoleum alebo podobné materiály.
+      </p>
+      <p lang="SK">
+        Najmenší polomer oblúkov na trati bude 10&nbsp;cm. Celkové prevýšenie 
+        nepresiahne 3&nbsp;cm, maximálne stúpanie a&nbsp;klesanie je 5%. Na 
+        dráhe, podobne ako v&nbsp;reálnom svete, sa môžu vyskytovať náhodné 
+        prekážky (prerušená vodiaca čiara, prekážka na vodiacej čiare, zmena 
+        osvetlenia čiary a iné).
+      </p>
+      <p lang="SK">
+        Úlohou robota nie je nájsť správnu cestu (nebudú žiadne križovatky a 
+        odbočky), ale výhradne sledovať namaľovanú čiaru. Na dráhe sa môže 
+        vyskytnúť aj tunel s&nbsp;minimálnym prierezom 25x25&nbsp;cm. Dráha sa 
+        počas súťaže nemení, takže robot sa môže učiť a napr. rovné úseky pri 
+        ďalšej jazde prechádzať rýchlejšie.
+      </p>
+      <p lang="SK">
+        Robot vyštartuje z&nbsp;pomysleného kruhu o&nbsp;polomere 30&nbsp;cm 
+        (štart), za ktorým nasleduje asi 50&nbsp;cm dlhý priamy úsek, na ktorom 
+        musí nájsť stopu a nastaviť sa na ňu. Za týmto úsekom sa nachádza 
+        pomyslená štartovacia čiara, po prerušení svetelného lúča (10&nbsp;mm 
+        nad povrchom dráhy) ľubovoľnou časťou robota sa začne merať čas. Dráha 
+        bude uzavretá a v priestore štartu (a teda aj cieľa) bude cez čiernu 
+        čiaru nalepený kolmý pásik dlhý cca 10cm, ktorý bude znamenať začiatok 
+        a koniec dráhy. Súťažiaci, ktorým by pásik vadil, môžu robota na dráhu 
+        postaviť až za ním. Tak môžu roboty lepšie využiť znalosti získané z 
+        predošlých kôl.
+      </p>
+      <p lang="SK">
+        Časomiera sa zastaví po prerušení podobného lúča na konci dráhy.
+      </p>
+      <h2 lang="SK">
+        Činnosť robota        
+      </h2>
+      <p lang="SK">
+        Po umiestnení robota do štartovacieho kruhu a jeho zapnutí súťažiaci 
+        nesmie do jeho činnosti nijakým spôsobom zasahovať. Robot musí byť 
+        riadený výlučne vstavanými elektronickými obvodmi.
+      </p>
+      <p lang="SK">
+        Po prekročení štartovacej čiary robot nesmie opustiť dráhu vyznačenú 
+        tmavou čiarou s výnimkou obchádzania prekážky. Pri pohybe nesmie 
+        zanechávať žiadne stopy a značky. Na dráhe nesmie ostať ani žiadna jeho 
+        súčasť.
+      </p>
+      <p lang="SK">
+        Pri poškodení súťažnej dráhy je robot diskvalifikovaný.
+      </p>
+      <h2 lang="SK">
+        Rozmery a veľkosť robota
+      </h2>
+      <p lang="SK">
+        Rozmer robota nesmie v&nbsp;žiadnom smere presiahnuť 25cm. Uvedomte si 
+        aj obmedzenia dané tunelmi a polomermi oblúkov na dráhe.
+      </p>
+      <p lang="SK">
+        Minimálne rozmery nie sú obmedzené. Hmotnosť nie je obmedzená.
+      </p>
+      <h2 lang="SK">
+        Konštrukcia a materiály
+      </h2>
+      <p lang="SK">
+        Na konštrukciu sa nekladú žiadne obmedzenia. Jedinou požiadavkou je to, 
+        aby robot bol výrobkom súťažiaceho (súťažiacich). To nevylučuje komerčné 
+        stavebnice (LEGO, Fischertechnik), iba hotové výrobky.
+      </p>
+      <h2 lang="SK">
+        Senzorika
+      </h2>
+      <p lang="SK">
+        Nie sú kladené žiadne obmedzenia na typ, počet a rozmery použitých 
+        snímačov, ak neporušujú iné pravidlá.
+      </p>
+      <p lang="SK">
+        Súťažiaci nesmú použiť žiadne vonkajšie pomôcky na zlepšenie navigácie 
+        (nálepky, značky, zrkadielka,...).
+      </p>
+      <h2 lang="SK">
+        Elektronika
+      </h2>
+      <p lang="SK">
+        Žiadna časť robota nesmie pracovať s&nbsp;väčším napätím ako je 24V. 
+        Celková spotreba by nemala byť viac ako 20A. Výnimky z&nbsp;tohto 
+        pravidla schvaľuje porota. Všetky riadiace obvody musia byť súčasťou 
+        robota, nie je možné riadiť jeho pohyb napríklad z&nbsp;externého PC 
+        pripojeného či už káblom, alebo bezdrôtovo.
+      </p>
+      <p lang="SK">
+        Na použité elektronické súčiastky nie je žiadne obmedzenie.
+      </p>
+      <p lang="SK">
+        Zdroje energie sú problém súťažiacich.
+      </p>
+      <h2 lang="SK">
+        Poradie účastníkov a priebeh súťaže
+      </h2>
+      <p lang="SK">
+        Poradie súťažiacich bude vylosované tesne pred súťažou. Účastníci musia 
+        absolvovať predpísanú dráhu v&nbsp;poradí určenom losovaním. Každý 
+        súťažiaci robot môže prejsť dráhu trikrát vo vylosovanom poradí. Čas 
+        medzi pokusmi môže účastník využiť na ľubovoľné opravy a úpravy. Ak sa 
+        však nedostaví do 1 minúty po výzve na štart, stráca právo absolvovať 
+        pokus. V&nbsp;prípade, že sa prihlási veľa súťažiacich, porota môže 
+        znížiť počet pokusov, prípadne vyhlásiť kvalifikačné kolo.
+      </p>
+      <h2 lang="SK">
+        Časové limity
+      </h2>
+      <p lang="SK">
+        Na prejdenie dráhy je stanovený časový limit 5 minút. Po piatich 
+        minútach sa meranie času zastaví a pokus sa zruší. Aj napriek tomuto 
+        handicapu však nie je diskvalifikovaný. Zastavenie merania času nemá 
+        nijaký vplyv na ostatné pokusy.
+      </p>
+      <h2 lang="SK">
+        Hodnotenie a ceny
+      </h2>
+      <p lang="SK">
+        Každý prihlásený robot, ktorý prejde stanovenú dráhu, dostane diplom. 
+        Víťazom sa stane robot s&nbsp;najnižším dosiahnutým časom zo všetkých 
+        pokusov. Okrem toho môže porota udeliť cenu za najlepšiu konštrukciu a 
+        najelegantnejšiu konštrukciu (kapotáž).
+      </p>
+      <h2 lang="SK">
+        Diskvalifikácia
+      </h2>
+      <p lang="SK">
+        Vo všeobecnosti platí, že pri každom porušení pravidiel je robot zo 
+        súťaže vylúčený. To platí najmä v týchto situáciach:
+      </p>
+      <ul>
+        <li lang="SK">
+          nebezpečné správanie, ohrozenie bezpečnosti,
+        </li>
+        <li lang="SK">
+          poškodenie dráhy,
+        </li>
+        <li lang="SK">
+          ak sa robot počas jazdy rozpadne.
+        </li>
+      </ul>
+      <h2 lang="SK">
+        Bezpečnosť
+      </h2>
+      <p lang="SK">
+        Tri zákony robotiky:
+      </p>
+      <ul>
+        <li lang="SK">
+          <i>Robot nesmie ublížiť človeku</i> alebo svojou nečinnosťou dopustiť, 
+          aby bolo človeku ublížené.
+        </li>
+        <li lang="SK">
+          <i>Robot musí poslúchnuť príkaz človeka</i>, s&nbsp;výnimkou prípadov, 
+          keď je taký príkaz v&nbsp;rozpore s&nbsp;prvým zákonom.
+        </li>
+        <li lang="SK">
+          <i>Robot musí chrániť sám seba pred zničením</i>, s&nbsp;výnimkou
+          prípadov, keď je to v&nbsp;rozpore s&nbsp;prvým a druhým zákonom.
+        </li>
+      </ul>
+      <p class="Right" lang="EN">
+        Isaac Asimov: The Complete Robot, Nightfall Inc., 1982.
+      </p>
+      <p lang="SK">
+        V&nbsp;prípade, že zariadenie nebude spĺňať základné bezpečnostné 
+        predpisy, porota ho nesmie pripustiť k&nbsp;súťaži a nesmie dovoliť 
+        jeho prevádzkovanie.
+      </p>
+      <p lang="SK">
+        Každý robot, ktorý by mohol ohroziť účastníkov, divákov, alebo 
+        zariadenie, bude vypnutý.
+      </p>
+      <p lang="SK">
+        Súťažná dráha nemá mantinely. Okolo čiary je na každej strane bezpečný 
+        pás široký 26 cm, ale napriek tomu sa odporúča vo vlastnom záujme 
+        robota vybaviť bezpečnostným zariadením proti pádu zo stola.
+      </p>
+      <h2 lang="SK">
+        Klimatické podmienky
+      </h2>
+      <p lang="SK">
+        Súťaž bude prebiehať v bežných klimatických podmienkach (T = 270 - 
+        310&nbsp;K, <i>p</i> = 90 - 120&nbsp;kPa, 0 - 90% RH).
+      </p>
+      <p lang="SK">
+        Skutočnú úroveň osvetlenia scény nie je možné vopred určiť. Pred súťažou 
+        bude vyhradený čas, ktorý môžu súťažiaci využiť na optimálne nastavenie 
+        citlivosti snímačov. Organizátor nemôže zaručiť, že diváci nebudú vrhať 
+        na dráhu tiene.
+      </p>
+      <p lang="SK">
+        Upozornenie: Konštruktéri si musia uvedomiť, že moderné filmové a 
+        fotografické prístroje používajú zábleskové zariadenia a infračervené 
+        vysielače na zaostrovanie. Pretože priebeh súťaže bude zaznamenávaný, 
+        pri konštrukcii treba počítať aj s takýmito poruchovými signálmi.
+      </p>
+      <h2 lang="SK">
+        Dokumentácia
+      </h2>
+      <p lang="SK">
+        Každý súťažiaci musí odovzdať pred súťažou dokumentáciu popisujúcu 
+        elektroniku, konštrukciu a riadiaci algoritmus. Najlepšia forma je 
+        <code>html</code>, organizátor poskytne priestor na jej uverejnenie na 
+        svojom serveri.
+      </p>
+      <h2 lang="SK">
+        Porota
+      </h2>
+      <p lang="SK">
+        Nad priebehom súťaže a dodržiavaním pravidiel bdie porota.
+      </p>
+      <p lang="SK">
+        Porota je najmenej trojčlenná, skladá sa zo zástupcov fakulty, študentov 
+        a sponzorov.
+      </p>
+      <p lang="SK">
+        Výroky poroty sú záväzné vo všetkých sporných bodoch i v&nbsp;otázkach 
+        výkladu pravidiel.
+      </p>
+      <h2 lang="SK">
+        Kedy a kde?
+      </h2>
+      <p lang="SK">
+        Súťaž bude prebiehať v&nbsp;priestoroch Fakulty elektrotechniky a 
+        informatiky na Ilkovičovej 3 v&nbsp;Bratislave 27. apríla 2005. 
+        Účastníci budú mať možnosť otestovať dráhu (pravdaže nie jej súťažný 
+        tvar) v stanovených termínoch a deň pred súťažou.
+      </p>
+      <h2 lang="SK">
+        Registrácia a prihlášky
+      </h2>
+      <p lang="SK">
+        Súťaže sa môžu zúčastniť jednotlivci a tímy (max. 5-členné) bez ohľadu 
+        na vek či zamestnanie.
+      </p>
+
+    </div>
+
+    <!-- AUTOINCLUDE START "Page/Footer.cs.ihtml" DO NOT REMOVE -->
+    <!-- ============== PATIČKA ============== -->
+    <div class="Footer">
+      <script type="text/javascript">
+      <!--
+        SetRelativePath("../../../../../");
+        DrawFooter();
+      // -->
+      </script>
+      <noscript>
+        <p><b> Pro zobrazení (vložení) hlavičky je potřeba JavaScript </b></p>
+      </noscript>
+    </div>
+    <!-- AUTOINCLUDE END -->
+
+  </body>
+</html>
