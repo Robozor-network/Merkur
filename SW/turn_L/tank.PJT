@@ -1,0 +1,40 @@
+[PROJECT]
+Target=tank.HEX
+Development_Mode=
+Processor=0x688F
+ToolSuite=CCS
+
+[Directories]
+Include=C:\Program Files\PICC\devices\;C:\Program Files\PICC\drivers\;C:\library\CCS;
+Library=
+LinkerScript=
+
+[Target Data]
+FileList=tank.c;
+BuildTool=C-COMPILER
+OptionString=+FM
+AdditionalOptionString=
+BuildRequired=1
+
+[tank.c]
+Type=4
+Path=
+FileList=
+BuildTool=
+OptionString=
+AdditionalOptionString=
+
+[mru-list]
+1=tank.c
+
+[Windows]
+0=0000 tank.c 0 0 796 451 3 0
+
+[Opened Files]
+1=D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.c
+2=C:\Program Files\PICC\devices\16F88.h
+3=
+4=C:\Program Files\PICC\devices\16F88.h
+5=
+6=
+7=

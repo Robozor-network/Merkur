@@ -1,0 +1,69 @@
+015-016 CCP_1
+015     CCP_1_LOW
+016     CCP_1_HIGH
+020     @INTERRUPT_AREA
+021     @INTERRUPT_AREA
+022     @INTERRUPT_AREA
+023     @INTERRUPT_AREA
+024     @INTERRUPT_AREA
+025     @INTERRUPT_AREA
+026     @INTERRUPT_AREA
+027     @INTERRUPT_AREA
+028     @INTERRUPT_AREA
+029     sensors
+02A     line
+02B     speed
+02C     last
+02D     rovinka
+02E     cirkus
+02F-056 AXstring
+057-058 main.n
+059-05A main.i
+05B-05C diagnostika.n
+05B-05C OtocSe.n
+05B     main.@SCRATCH
+05D-05E beep.period
+05D     diagnostika.@SCRATCH
+05D     OtocSe.@SCRATCH
+05E     @delay_ms1.P1
+05F-060 beep.length
+061-062 beep.nn
+063     @delay_us1.P1
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+07B     @SCRATCH
+09C.6   C1OUT
+09C.7   C2OUT
+
+007B  @delay_ms1
+0042  @delay_us1
+0037  TIMER2_isr
+0055  beep
+0090  diagnostika
+01F0  OtocSe
+028E  main
+028E  @cinit
+
+Project Files:
+    D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.c
+    D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.h
+    C:\Program Files\PICC\devices\16F88.h
+
+Compiler Settings:
+    Processor:      PIC16F88
+    Pointer Size:   8
+    ADC Range:      0-255
+    Opt Level:      9
+    Short,Int,Long: 1,8,16
+
+Output Files:
+    Errors:      D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.err
+    INHX8:       D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.HEX
+    Symbols:     D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.SYM
+    List:        D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.LST
+    Debug/COFF:  D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.cof
+    Call Tree:   D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.tre
+    Statistics:  D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.sta

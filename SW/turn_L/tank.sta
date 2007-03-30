@@ -1,0 +1,38 @@
+
+ROM used: 1705 (42%)
+          1705 (42%) including unused fragments
+
+          2 Average locations per line
+          4 Average locations per statement
+
+RAM used: 87 (50%) at main() level
+          98 (56%) worst case
+
+Lines Stmts  %   Files
+----- ----- ---  -----
+  341   386  85  D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.c
+    6     0   0  D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.h
+  275     0   0  C:\Program Files\PICC\devices\16F88.h
+  136    67   8  D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\AX25.c
+----- -----
+ 1516   906 Total
+
+Page ROM  %  RAM  Functions:
+---- --- --- ---  ----------
+0     21   1   1  @delay_ms1
+0     21   1   1  @delay_us1
+0     16   1   0  TIMER2_isr
+0     44   3   6  beep
+0    352  21   3  diagnostika
+0    140   8   3  cikcak
+0    247  14   3  objizdka
+0    360  21   4  prejeddiru
+0    449  26   3  main
+
+ Segment   Used  Free
+---------  ----  ----
+00000-00003     4  0
+00004-00036    51  0
+00037-007FF  1650  343
+00800-00FFF     0  2048
+

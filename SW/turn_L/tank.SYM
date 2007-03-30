@@ -1,0 +1,88 @@
+003     STATUS
+015-016 CCP_1
+015     CCP_1_LOW
+016     CCP_1_HIGH
+020     @INTERRUPT_AREA
+021     @INTERRUPT_AREA
+022     @INTERRUPT_AREA
+023     @INTERRUPT_AREA
+024     @INTERRUPT_AREA
+025     @INTERRUPT_AREA
+026     @INTERRUPT_AREA
+027     @INTERRUPT_AREA
+028     @INTERRUPT_AREA
+029-038 SendData
+039.0   bit
+03A     fcslo
+03B     fcshi
+03C     stuff
+03D     flag_flag
+03E     fcs_flag
+03F     i
+040     sensors
+041     line
+042     speed
+043     rovinka
+044     last
+045     movement
+046     dira
+047-06E AXstring
+06F-070 main.n
+071-072 objizdka.n
+071-072 diagnostika.n
+071-072 prejeddiru.n
+071     main.@SCRATCH
+073     prejeddiru.speed_dira
+073     diagnostika.@SCRATCH
+073     objizdka.@SCRATCH
+074-075 beep.period
+074-075 cikcak.n
+074     prejeddiru.@SCRATCH
+075     @delay_ms1.P1
+076     cikcak.@SCRATCH
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+07B     @SCRATCH
+07C-07D beep.length
+09C.6   C1OUT
+09C.7   C2OUT
+0A0-0A1 beep.nn
+0A2     @delay_us1.P1
+
+0088  @delay_ms1
+0047  @delay_us1
+0037  TIMER2_isr
+005C  beep
+009D  diagnostika
+01FD  cikcak
+0289  objizdka
+0380  prejeddiru
+04E8  main
+04E8  @cinit
+01FD  sem1
+04D2  sem
+
+Project Files:
+    D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.c
+    D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.h
+    C:\Program Files\PICC\devices\16F88.h
+    D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\AX25.c
+
+Compiler Settings:
+    Processor:      PIC16F88
+    Pointer Size:   8
+    ADC Range:      0-255
+    Opt Level:      9
+    Short,Int,Long: 1,8,16
+
+Output Files:
+    Errors:      D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.err
+    INHX8:       D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.HEX
+    Symbols:     D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.SYM
+    List:        D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.LST
+    Debug/COFF:  D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.cof
+    Call Tree:   D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.tre
+    Statistics:  D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\turn_L\tank.sta

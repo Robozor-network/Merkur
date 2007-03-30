@@ -1,0 +1,1497 @@
+CCS PCM C Compiler, Version 3.221, 27853               20-V-05 13:52
+
+               Filename: D:\KAKLIK\programy\PIC_C\roboti\merkur\PIC16F88\vystava\tank.LST
+
+               ROM used: 1232 words (30%)
+                         Largest free fragment is 2048
+               RAM used: 65 (37%) at main() level
+                         73 (42%) worst case
+               Stack:    4 worst case (3 in main + 1 for interrupts)
+
+*
+0000:  MOVLW  00
+0001:  MOVWF  0A
+0002:  GOTO   28E
+0003:  NOP
+0004:  MOVWF  7F
+0005:  SWAPF  03,W
+0006:  CLRF   03
+0007:  MOVWF  21
+0008:  MOVF   7F,W
+0009:  MOVWF  20
+000A:  MOVF   0A,W
+000B:  MOVWF  28
+000C:  CLRF   0A
+000D:  SWAPF  20,F
+000E:  MOVF   04,W
+000F:  MOVWF  22
+0010:  MOVF   77,W
+0011:  MOVWF  23
+0012:  MOVF   78,W
+0013:  MOVWF  24
+0014:  MOVF   79,W
+0015:  MOVWF  25
+0016:  MOVF   7A,W
+0017:  MOVWF  26
+0018:  MOVF   7B,W
+0019:  MOVWF  27
+001A:  BCF    03.7
+001B:  BCF    03.5
+001C:  MOVLW  8C
+001D:  MOVWF  04
+001E:  BTFSS  00.1
+001F:  GOTO   022
+0020:  BTFSC  0C.1
+0021:  GOTO   035
+0022:  MOVF   22,W
+0023:  MOVWF  04
+0024:  MOVF   23,W
+0025:  MOVWF  77
+0026:  MOVF   24,W
+0027:  MOVWF  78
+0028:  MOVF   25,W
+0029:  MOVWF  79
+002A:  MOVF   26,W
+002B:  MOVWF  7A
+002C:  MOVF   27,W
+002D:  MOVWF  7B
+002E:  MOVF   28,W
+002F:  MOVWF  0A
+0030:  SWAPF  21,W
+0031:  MOVWF  03
+0032:  SWAPF  7F,F
+0033:  SWAPF  7F,W
+0034:  RETFIE
+0035:  BCF    0A.3
+0036:  GOTO   037
+....................  #include "tank.h" 
+....................  #include <16F88.h> 
+....................  //////// Standard Header file for the PIC16F88 device ////////////////  
+.................... #device PIC16F88  
+.................... #list  
+....................  
+.................... #device adc=8  
+.................... #fuses NOWDT,INTRC_IO, NOPUT, MCLR, NOBROWNOUT, NOLVP, NOCPD, NOWRT, NODEBUG, NOPROTECT, NOFCMEN, NOIESO  
+.................... #use delay(clock=4000000)  
+*
+0042:  MOVLW  12
+0043:  SUBWF  63,F
+0044:  BTFSS  03.0
+0045:  GOTO   054
+0046:  MOVLW  63
+0047:  MOVWF  04
+0048:  MOVLW  FC
+0049:  ANDWF  00,F
+004A:  BCF    03.0
+004B:  RRF    00,F
+004C:  RRF    00,F
+004D:  MOVF   00,W
+004E:  BTFSC  03.2
+004F:  GOTO   054
+0050:  GOTO   052
+0051:  NOP
+0052:  DECFSZ 00,F
+0053:  GOTO   051
+0054:  RETLW  00
+*
+007B:  MOVLW  5E
+007C:  MOVWF  04
+007D:  MOVF   00,W
+007E:  BTFSC  03.2
+007F:  GOTO   08F
+0080:  MOVLW  01
+0081:  MOVWF  78
+0082:  CLRF   77
+0083:  DECFSZ 77,F
+0084:  GOTO   083
+0085:  DECFSZ 78,F
+0086:  GOTO   082
+0087:  MOVLW  4A
+0088:  MOVWF  77
+0089:  DECFSZ 77,F
+008A:  GOTO   089
+008B:  NOP
+008C:  NOP
+008D:  DECFSZ 00,F
+008E:  GOTO   080
+008F:  RETLW  00
+....................   
+....................  
+....................   
+.................... unsigned int8 sensors;        // pomocna promenna pro cteni cidel na caru  
+.................... unsigned int8 line;           // na ktere strane byla detekovana cara  
+.................... unsigned int8 speed;          // rychlost zataceni  
+.................... unsigned int8 last;           // kde byla cara, kdyz byly minule cidla mimo  
+.................... unsigned int8 rovinka;        // pocitadlo pro zjisteni rovneho useku  
+.................... int cirkus;  
+....................   
+.................... // Konstanty pro dynamiku pohybu  
+.................... #define T_DIRA       120      // po jakem case zataceni se detekuje dira  
+.................... #define FW_POMALU    170      // trochu mimo caru vnitrni pas  
+.................... #define FW_ZATACKA   200      // rychlost vnejsiho kola pri zataceni  
+.................... #define FW_STREDNE   190      // trochu mimo caru vnejsi pas  
+.................... #define COUVANI      750      // couvnuti zpet na caru, po detekci diry  
+.................... #define MAX_ROVINKA  (255-FW_STREDNE)  
+.................... #define TRESHOLD     15        // rozhodovaci uroven komparatoru, 0xF = 0.75*Vdd  
+.................... #define BUMPER_TRESHOLD 128  
+....................   
+.................... //motory            //Napred vypnout potom zapnout!  
+.................... #define FR         output_low(PIN_B5); output_high(PIN_B4)  // Vpred  
+.................... #define FL         output_low(PIN_B7); output_high(PIN_B6)  
+.................... #define BR         output_low(PIN_B4); output_high(PIN_B5)  // Vzad  
+.................... #define BL         output_low(PIN_B6); output_high(PIN_B7)  
+.................... #define STOPR      output_low(PIN_B4);output_low(PIN_B5)    // Zastav  
+.................... #define STOPL      output_low(PIN_B6);output_low(PIN_B7)  
+....................   
+.................... #define L 0b10  // left  
+.................... #define R 0b01  // right  
+.................... #define S 0b11  // straight  
+....................   
+.................... //cidla  
+.................... #define RSENSOR    !C2OUT      // Senzory na caru  
+.................... #define LSENSOR    !C1OUT  
+.................... #define BUMPER     PIN_A4     // Senzor na cihlu  
+....................   
+.................... #define DIAG_SERVO      PIN_B3   // Propojka pro diagnosticky mod  
+.................... #define DIAG_SENSORS    PIN_B2   // Propojka pro diagnosticky mod  
+....................   
+.................... #DEFINE SOUND_HI   PIN_A6     // komplementarni vystupy pro piezo pipak  
+.................... #DEFINE SOUND_LO   PIN_A7  
+....................   
+.................... char AXstring[40];   // Buffer pro prenos telemetrie  
+....................   
+.................... // makro pro PWM  
+.................... #define GO(motor, direction, power) if(get_timer0()<=power) \  
+.................... {direction##motor;} else {stop##motor;}  
+....................   
+.................... #int_TIMER2  
+.................... void TIMER2_isr()  
+.................... {  
+....................    if (speed<255) speed++;  
+*
+0037:  INCFSZ 2B,W
+0038:  GOTO   03A
+0039:  GOTO   03B
+003A:  INCF   2B,F
+....................    if (rovinka<MAX_ROVINKA) rovinka++;  
+003B:  MOVF   2D,W
+003C:  SUBLW  40
+003D:  BTFSC  03.0
+003E:  INCF   2D,F
+.................... }  
+.................... // Primitivni Pipani  
+003F:  BCF    0C.1
+0040:  BCF    0A.3
+0041:  GOTO   022
+.................... void beep(unsigned int16 period, unsigned int16 length)  
+.................... {  
+....................    unsigned int16 nn;  
+....................   
+....................    for(nn=length; nn>0; nn--)  
+*
+0055:  MOVF   60,W
+0056:  MOVWF  62
+0057:  MOVF   5F,W
+0058:  MOVWF  61
+0059:  MOVF   61,F
+005A:  BTFSS  03.2
+005B:  GOTO   05F
+005C:  MOVF   62,F
+005D:  BTFSC  03.2
+005E:  GOTO   07A
+....................    {  
+....................      output_high(SOUND_HI);output_low(SOUND_LO);  
+005F:  BSF    03.5
+0060:  BCF    05.6
+0061:  BCF    03.5
+0062:  BSF    05.6
+0063:  BSF    03.5
+0064:  BCF    05.7
+0065:  BCF    03.5
+0066:  BCF    05.7
+....................      delay_us(period);  
+0067:  MOVF   5D,W
+0068:  MOVWF  63
+0069:  CALL   042
+....................      output_high(SOUND_LO);output_low(SOUND_HI);  
+006A:  BSF    03.5
+006B:  BCF    05.7
+006C:  BCF    03.5
+006D:  BSF    05.7
+006E:  BSF    03.5
+006F:  BCF    05.6
+0070:  BCF    03.5
+0071:  BCF    05.6
+....................      delay_us(period);  
+0072:  MOVF   5D,W
+0073:  MOVWF  63
+0074:  CALL   042
+....................    }  
+0075:  MOVF   61,W
+0076:  BTFSC  03.2
+0077:  DECF   62,F
+0078:  DECF   61,F
+0079:  GOTO   059
+.................... }  
+007A:  RETLW  00
+.................... /******************************************************************************/  
+.................... void diagnostika()  
+.................... {  
+....................    unsigned int16 n;  
+....................   
+....................    while (input(DIAG_SERVO))   // Propojka, ktera spousti diagnostiku  
+....................    {  
+*
+0090:  BSF    03.5
+0091:  BSF    06.3
+0092:  BCF    03.5
+0093:  BTFSS  06.3
+0094:  GOTO   1BB
+....................       for (n=500; n<800; n+=100)  
+0095:  MOVLW  01
+0096:  MOVWF  5C
+0097:  MOVLW  F4
+0098:  MOVWF  5B
+0099:  MOVF   5C,W
+009A:  SUBLW  03
+009B:  BTFSS  03.0
+009C:  GOTO   0B1
+009D:  BTFSS  03.2
+009E:  GOTO   0A3
+009F:  MOVF   5B,W
+00A0:  SUBLW  1F
+00A1:  BTFSS  03.0
+00A2:  GOTO   0B1
+....................       {  
+....................          beep(n,n); //beep UP  
+00A3:  MOVF   5C,W
+00A4:  MOVWF  5E
+00A5:  MOVF   5B,W
+00A6:  MOVWF  5D
+00A7:  MOVF   5C,W
+00A8:  MOVWF  60
+00A9:  MOVF   5B,W
+00AA:  MOVWF  5F
+00AB:  CALL   055
+....................       };  
+00AC:  MOVLW  64
+00AD:  ADDWF  5B,F
+00AE:  BTFSC  03.0
+00AF:  INCF   5C,F
+00B0:  GOTO   099
+....................       Delay_ms(1000);  
+00B1:  MOVLW  04
+00B2:  MOVWF  5D
+00B3:  MOVLW  FA
+00B4:  MOVWF  5E
+00B5:  CALL   07B
+00B6:  DECFSZ 5D,F
+00B7:  GOTO   0B3
+....................       //zastav vse  
+....................       STOPL; STOPR;  
+00B8:  BSF    03.5
+00B9:  BCF    06.6
+00BA:  BCF    03.5
+00BB:  BCF    06.6
+00BC:  BSF    03.5
+00BD:  BCF    06.7
+00BE:  BCF    03.5
+00BF:  BCF    06.7
+00C0:  BSF    03.5
+00C1:  BCF    06.4
+00C2:  BCF    03.5
+00C3:  BCF    06.4
+00C4:  BSF    03.5
+00C5:  BCF    06.5
+00C6:  BCF    03.5
+00C7:  BCF    06.5
+....................       //pravy pas  
+....................       FR; Delay_ms(1000); STOPR; Delay_ms(1000);  
+00C8:  BSF    03.5
+00C9:  BCF    06.5
+00CA:  BCF    03.5
+00CB:  BCF    06.5
+00CC:  BSF    03.5
+00CD:  BCF    06.4
+00CE:  BCF    03.5
+00CF:  BSF    06.4
+00D0:  MOVLW  04
+00D1:  MOVWF  5D
+00D2:  MOVLW  FA
+00D3:  MOVWF  5E
+00D4:  CALL   07B
+00D5:  DECFSZ 5D,F
+00D6:  GOTO   0D2
+00D7:  BSF    03.5
+00D8:  BCF    06.4
+00D9:  BCF    03.5
+00DA:  BCF    06.4
+00DB:  BSF    03.5
+00DC:  BCF    06.5
+00DD:  BCF    03.5
+00DE:  BCF    06.5
+00DF:  MOVLW  04
+00E0:  MOVWF  5D
+00E1:  MOVLW  FA
+00E2:  MOVWF  5E
+00E3:  CALL   07B
+00E4:  DECFSZ 5D,F
+00E5:  GOTO   0E1
+....................       BR; Delay_ms(1000); STOPR; Delay_ms(1000);  
+00E6:  BSF    03.5
+00E7:  BCF    06.4
+00E8:  BCF    03.5
+00E9:  BCF    06.4
+00EA:  BSF    03.5
+00EB:  BCF    06.5
+00EC:  BCF    03.5
+00ED:  BSF    06.5
+00EE:  MOVLW  04
+00EF:  MOVWF  5D
+00F0:  MOVLW  FA
+00F1:  MOVWF  5E
+00F2:  CALL   07B
+00F3:  DECFSZ 5D,F
+00F4:  GOTO   0F0
+00F5:  BSF    03.5
+00F6:  BCF    06.4
+00F7:  BCF    03.5
+00F8:  BCF    06.4
+00F9:  BSF    03.5
+00FA:  BCF    06.5
+00FB:  BCF    03.5
+00FC:  BCF    06.5
+00FD:  MOVLW  04
+00FE:  MOVWF  5D
+00FF:  MOVLW  FA
+0100:  MOVWF  5E
+0101:  CALL   07B
+0102:  DECFSZ 5D,F
+0103:  GOTO   0FF
+....................       Beep(880,100); Delay_ms(1000);  
+0104:  MOVLW  03
+0105:  MOVWF  5E
+0106:  MOVLW  70
+0107:  MOVWF  5D
+0108:  CLRF   60
+0109:  MOVLW  64
+010A:  MOVWF  5F
+010B:  CALL   055
+010C:  MOVLW  04
+010D:  MOVWF  5D
+010E:  MOVLW  FA
+010F:  MOVWF  5E
+0110:  CALL   07B
+0111:  DECFSZ 5D,F
+0112:  GOTO   10E
+....................       //levy pas  
+....................       FL; Delay_ms(1000); STOPL; Delay_ms(1000);  
+0113:  BSF    03.5
+0114:  BCF    06.7
+0115:  BCF    03.5
+0116:  BCF    06.7
+0117:  BSF    03.5
+0118:  BCF    06.6
+0119:  BCF    03.5
+011A:  BSF    06.6
+011B:  MOVLW  04
+011C:  MOVWF  5D
+011D:  MOVLW  FA
+011E:  MOVWF  5E
+011F:  CALL   07B
+0120:  DECFSZ 5D,F
+0121:  GOTO   11D
+0122:  BSF    03.5
+0123:  BCF    06.6
+0124:  BCF    03.5
+0125:  BCF    06.6
+0126:  BSF    03.5
+0127:  BCF    06.7
+0128:  BCF    03.5
+0129:  BCF    06.7
+012A:  MOVLW  04
+012B:  MOVWF  5D
+012C:  MOVLW  FA
+012D:  MOVWF  5E
+012E:  CALL   07B
+012F:  DECFSZ 5D,F
+0130:  GOTO   12C
+....................       BL; Delay_ms(1000); STOPL; Delay_ms(1000);  
+0131:  BSF    03.5
+0132:  BCF    06.6
+0133:  BCF    03.5
+0134:  BCF    06.6
+0135:  BSF    03.5
+0136:  BCF    06.7
+0137:  BCF    03.5
+0138:  BSF    06.7
+0139:  MOVLW  04
+013A:  MOVWF  5D
+013B:  MOVLW  FA
+013C:  MOVWF  5E
+013D:  CALL   07B
+013E:  DECFSZ 5D,F
+013F:  GOTO   13B
+0140:  BSF    03.5
+0141:  BCF    06.6
+0142:  BCF    03.5
+0143:  BCF    06.6
+0144:  BSF    03.5
+0145:  BCF    06.7
+0146:  BCF    03.5
+0147:  BCF    06.7
+0148:  MOVLW  04
+0149:  MOVWF  5D
+014A:  MOVLW  FA
+014B:  MOVWF  5E
+014C:  CALL   07B
+014D:  DECFSZ 5D,F
+014E:  GOTO   14A
+....................       Beep(880,100); Delay_ms(1000);  
+014F:  MOVLW  03
+0150:  MOVWF  5E
+0151:  MOVLW  70
+0152:  MOVWF  5D
+0153:  CLRF   60
+0154:  MOVLW  64
+0155:  MOVWF  5F
+0156:  CALL   055
+0157:  MOVLW  04
+0158:  MOVWF  5D
+0159:  MOVLW  FA
+015A:  MOVWF  5E
+015B:  CALL   07B
+015C:  DECFSZ 5D,F
+015D:  GOTO   159
+....................       //oba pasy  
+....................       FL; FR; Delay_ms(1000); STOPL; STOPR; Delay_ms(1000);  
+015E:  BSF    03.5
+015F:  BCF    06.7
+0160:  BCF    03.5
+0161:  BCF    06.7
+0162:  BSF    03.5
+0163:  BCF    06.6
+0164:  BCF    03.5
+0165:  BSF    06.6
+0166:  BSF    03.5
+0167:  BCF    06.5
+0168:  BCF    03.5
+0169:  BCF    06.5
+016A:  BSF    03.5
+016B:  BCF    06.4
+016C:  BCF    03.5
+016D:  BSF    06.4
+016E:  MOVLW  04
+016F:  MOVWF  5D
+0170:  MOVLW  FA
+0171:  MOVWF  5E
+0172:  CALL   07B
+0173:  DECFSZ 5D,F
+0174:  GOTO   170
+0175:  BSF    03.5
+0176:  BCF    06.6
+0177:  BCF    03.5
+0178:  BCF    06.6
+0179:  BSF    03.5
+017A:  BCF    06.7
+017B:  BCF    03.5
+017C:  BCF    06.7
+017D:  BSF    03.5
+017E:  BCF    06.4
+017F:  BCF    03.5
+0180:  BCF    06.4
+0181:  BSF    03.5
+0182:  BCF    06.5
+0183:  BCF    03.5
+0184:  BCF    06.5
+0185:  MOVLW  04
+0186:  MOVWF  5D
+0187:  MOVLW  FA
+0188:  MOVWF  5E
+0189:  CALL   07B
+018A:  DECFSZ 5D,F
+018B:  GOTO   187
+....................       BL; BR; Delay_ms(1000); STOPL; STOPR; Delay_ms(1000);  
+018C:  BSF    03.5
+018D:  BCF    06.6
+018E:  BCF    03.5
+018F:  BCF    06.6
+0190:  BSF    03.5
+0191:  BCF    06.7
+0192:  BCF    03.5
+0193:  BSF    06.7
+0194:  BSF    03.5
+0195:  BCF    06.4
+0196:  BCF    03.5
+0197:  BCF    06.4
+0198:  BSF    03.5
+0199:  BCF    06.5
+019A:  BCF    03.5
+019B:  BSF    06.5
+019C:  MOVLW  04
+019D:  MOVWF  5D
+019E:  MOVLW  FA
+019F:  MOVWF  5E
+01A0:  CALL   07B
+01A1:  DECFSZ 5D,F
+01A2:  GOTO   19E
+01A3:  BSF    03.5
+01A4:  BCF    06.6
+01A5:  BCF    03.5
+01A6:  BCF    06.6
+01A7:  BSF    03.5
+01A8:  BCF    06.7
+01A9:  BCF    03.5
+01AA:  BCF    06.7
+01AB:  BSF    03.5
+01AC:  BCF    06.4
+01AD:  BCF    03.5
+01AE:  BCF    06.4
+01AF:  BSF    03.5
+01B0:  BCF    06.5
+01B1:  BCF    03.5
+01B2:  BCF    06.5
+01B3:  MOVLW  04
+01B4:  MOVWF  5D
+01B5:  MOVLW  FA
+01B6:  MOVWF  5E
+01B7:  CALL   07B
+01B8:  DECFSZ 5D,F
+01B9:  GOTO   1B5
+....................    };  
+01BA:  GOTO   090
+....................    while (input(DIAG_SENSORS))         // spusteni diagnostiky cidel  
+....................    {  
+01BB:  BSF    03.5
+01BC:  BSF    06.2
+01BD:  BCF    03.5
+01BE:  BTFSS  06.2
+01BF:  GOTO   1EE
+....................       if (RSENSOR) beep(1000,1000);  
+01C0:  BSF    03.5
+01C1:  BTFSC  1C.7
+01C2:  GOTO   1CE
+01C3:  MOVLW  03
+01C4:  BCF    03.5
+01C5:  MOVWF  5E
+01C6:  MOVLW  E8
+01C7:  MOVWF  5D
+01C8:  MOVLW  03
+01C9:  MOVWF  60
+01CA:  MOVLW  E8
+01CB:  MOVWF  5F
+01CC:  CALL   055
+01CD:  BSF    03.5
+....................       if (LSENSOR) beep(2000,2000);  
+01CE:  BTFSC  1C.6
+01CF:  GOTO   1DB
+01D0:  MOVLW  07
+01D1:  BCF    03.5
+01D2:  MOVWF  5E
+01D3:  MOVLW  D0
+01D4:  MOVWF  5D
+01D5:  MOVLW  07
+01D6:  MOVWF  60
+01D7:  MOVLW  D0
+01D8:  MOVWF  5F
+01D9:  CALL   055
+01DA:  BSF    03.5
+....................       if ((read_adc(ADC_READ_ONLY)<BUMPER_TRESHOLD)) beep(3000,3000);  
+01DB:  BCF    03.5
+01DC:  BTFSS  1F.2
+01DD:  GOTO   1E0
+01DE:  BSF    03.5
+01DF:  GOTO   1DB
+01E0:  MOVF   1E,W
+01E1:  SUBLW  7F
+01E2:  BTFSS  03.0
+01E3:  GOTO   1ED
+01E4:  MOVLW  0B
+01E5:  MOVWF  5E
+01E6:  MOVLW  B8
+01E7:  MOVWF  5D
+01E8:  MOVLW  0B
+01E9:  MOVWF  60
+01EA:  MOVLW  B8
+01EB:  MOVWF  5F
+01EC:  CALL   055
+....................    };  
+01ED:  GOTO   1BB
+.................... }  
+01EE:  BCF    0A.3
+01EF:  GOTO   31F (RETURN)
+.................... ///////////////////////////////////////////////////////////////////////////////  
+.................... void OtocSe()                     // otoci se zpet, kdyz je prekazka  
+.................... {  
+.................... unsigned int16 n;  
+....................   
+.................... 	BR;BL;  
+01F0:  BSF    03.5
+01F1:  BCF    06.4
+01F2:  BCF    03.5
+01F3:  BCF    06.4
+01F4:  BSF    03.5
+01F5:  BCF    06.5
+01F6:  BCF    03.5
+01F7:  BSF    06.5
+01F8:  BSF    03.5
+01F9:  BCF    06.6
+01FA:  BCF    03.5
+01FB:  BCF    06.6
+01FC:  BSF    03.5
+01FD:  BCF    06.7
+01FE:  BCF    03.5
+01FF:  BSF    06.7
+.................... 	beep(800,400);  
+0200:  MOVLW  03
+0201:  MOVWF  5E
+0202:  MOVLW  20
+0203:  MOVWF  5D
+0204:  MOVLW  01
+0205:  MOVWF  60
+0206:  MOVLW  90
+0207:  MOVWF  5F
+0208:  CALL   055
+.................... 	beep(2000,1000);  
+0209:  MOVLW  07
+020A:  MOVWF  5E
+020B:  MOVLW  D0
+020C:  MOVWF  5D
+020D:  MOVLW  03
+020E:  MOVWF  60
+020F:  MOVLW  E8
+0210:  MOVWF  5F
+0211:  CALL   055
+.................... 	beep(900,400);  
+0212:  MOVLW  03
+0213:  MOVWF  5E
+0214:  MOVLW  84
+0215:  MOVWF  5D
+0216:  MOVLW  01
+0217:  MOVWF  60
+0218:  MOVLW  90
+0219:  MOVWF  5F
+021A:  CALL   055
+....................   
+....................    BR; FL; Delay_ms(50);           // otoc se 30° do prava  
+021B:  BSF    03.5
+021C:  BCF    06.4
+021D:  BCF    03.5
+021E:  BCF    06.4
+021F:  BSF    03.5
+0220:  BCF    06.5
+0221:  BCF    03.5
+0222:  BSF    06.5
+0223:  BSF    03.5
+0224:  BCF    06.7
+0225:  BCF    03.5
+0226:  BCF    06.7
+0227:  BSF    03.5
+0228:  BCF    06.6
+0229:  BCF    03.5
+022A:  BSF    06.6
+022B:  MOVLW  32
+022C:  MOVWF  5E
+022D:  CALL   07B
+....................    STOPL; STOPR;  
+022E:  BSF    03.5
+022F:  BCF    06.6
+0230:  BCF    03.5
+0231:  BCF    06.6
+0232:  BSF    03.5
+0233:  BCF    06.7
+0234:  BCF    03.5
+0235:  BCF    06.7
+0236:  BSF    03.5
+0237:  BCF    06.4
+0238:  BCF    03.5
+0239:  BCF    06.4
+023A:  BSF    03.5
+023B:  BCF    06.5
+023C:  BCF    03.5
+023D:  BCF    06.5
+....................    beep(1000,1000);  
+023E:  MOVLW  03
+023F:  MOVWF  5E
+0240:  MOVLW  E8
+0241:  MOVWF  5D
+0242:  MOVLW  03
+0243:  MOVWF  60
+0244:  MOVLW  E8
+0245:  MOVWF  5F
+0246:  CALL   055
+....................   
+....................    BR; FL;  
+0247:  BSF    03.5
+0248:  BCF    06.4
+0249:  BCF    03.5
+024A:  BCF    06.4
+024B:  BSF    03.5
+024C:  BCF    06.5
+024D:  BCF    03.5
+024E:  BSF    06.5
+024F:  BSF    03.5
+0250:  BCF    06.7
+0251:  BCF    03.5
+0252:  BCF    06.7
+0253:  BSF    03.5
+0254:  BCF    06.6
+0255:  BCF    03.5
+0256:  BSF    06.6
+....................    for(n=40000;n>0;n--)               // toc se, dokud nenarazis na caru  
+0257:  MOVLW  9C
+0258:  MOVWF  5C
+0259:  MOVLW  40
+025A:  MOVWF  5B
+025B:  MOVF   5B,F
+025C:  BTFSS  03.2
+025D:  GOTO   261
+025E:  MOVF   5C,F
+025F:  BTFSC  03.2
+0260:  GOTO   279
+....................    {  
+....................       line = RSENSOR;         // cteni senzoru na caru  
+0261:  CLRF   2A
+0262:  BSF    03.5
+0263:  BTFSC  1C.7
+0264:  GOTO   268
+0265:  BCF    03.5
+0266:  INCF   2A,F
+0267:  BSF    03.5
+....................       line |= LSENSOR << 1;  
+0268:  MOVLW  00
+0269:  BTFSS  1C.6
+026A:  MOVLW  01
+026B:  MOVWF  77
+026C:  BCF    03.0
+026D:  RLF    77,F
+026E:  MOVF   77,W
+026F:  BCF    03.5
+0270:  IORWF  2A,F
+....................       if (line!=0) break;  
+0271:  MOVF   2A,F
+0272:  BTFSS  03.2
+0273:  GOTO   279
+....................    }  
+0274:  MOVF   5B,W
+0275:  BTFSC  03.2
+0276:  DECF   5C,F
+0277:  DECF   5B,F
+0278:  GOTO   25B
+....................    STOPR; STOPL;  
+0279:  BSF    03.5
+027A:  BCF    06.4
+027B:  BCF    03.5
+027C:  BCF    06.4
+027D:  BSF    03.5
+027E:  BCF    06.5
+027F:  BCF    03.5
+0280:  BCF    06.5
+0281:  BSF    03.5
+0282:  BCF    06.6
+0283:  BCF    03.5
+0284:  BCF    06.6
+0285:  BSF    03.5
+0286:  BCF    06.7
+0287:  BCF    03.5
+0288:  BCF    06.7
+....................   
+....................    line=L; // caru jsme prejeli, tak je vlevo  
+0289:  MOVLW  02
+028A:  MOVWF  2A
+....................    cirkus=0;  
+028B:  CLRF   2E
+.................... }  
+028C:  BCF    0A.3
+028D:  GOTO   34B (RETURN)
+....................   
+....................   
+.................... void main()  
+.................... {  
+028E:  CLRF   04
+028F:  MOVLW  1F
+0290:  ANDWF  03,F
+0291:  BSF    03.5
+0292:  BCF    1F.4
+0293:  BCF    1F.5
+0294:  MOVF   1B,W
+0295:  ANDLW  80
+0296:  MOVWF  1B
+0297:  MOVLW  07
+0298:  MOVWF  1C
+0299:  MOVF   1C,W
+029A:  BCF    03.5
+029B:  BCF    0D.6
+029C:  MOVLW  60
+029D:  BSF    03.5
+029E:  MOVWF  0F
+....................    unsigned int16 n; // pro FOR  
+....................    unsigned int16 i;  
+....................   
+....................    STOPL; STOPR;     // prepne vystupy na ovladani motoru na output a zastavi  
+029F:  BCF    06.6
+02A0:  BCF    03.5
+02A1:  BCF    06.6
+02A2:  BSF    03.5
+02A3:  BCF    06.7
+02A4:  BCF    03.5
+02A5:  BCF    06.7
+02A6:  BSF    03.5
+02A7:  BCF    06.4
+02A8:  BCF    03.5
+02A9:  BCF    06.4
+02AA:  BSF    03.5
+02AB:  BCF    06.5
+02AC:  BCF    03.5
+02AD:  BCF    06.5
+....................   
+....................    setup_oscillator(OSC_4MHZ|OSC_INTRC);     // 4 MHz interni RC oscilator  
+02AE:  MOVLW  62
+02AF:  BSF    03.5
+02B0:  MOVWF  0F
+....................   
+....................    port_b_pullups(TRUE);      // pullups pro piano na diagnostiku  
+02B1:  BCF    01.7
+....................    setup_spi(FALSE);  
+02B2:  BCF    03.5
+02B3:  BCF    14.5
+02B4:  BSF    03.5
+02B5:  BCF    06.2
+02B6:  BSF    06.1
+02B7:  BCF    06.4
+02B8:  MOVLW  00
+02B9:  BCF    03.5
+02BA:  MOVWF  14
+02BB:  BSF    03.5
+02BC:  MOVWF  14
+....................    setup_timer_0(RTCC_INTERNAL|RTCC_DIV_1);  // Casovac pro PWM  
+02BD:  MOVF   01,W
+02BE:  ANDLW  C7
+02BF:  IORLW  08
+02C0:  MOVWF  01
+....................   
+....................    setup_timer_2(T2_DIV_BY_4,255,10);    // Casovac pro regulaci  
+02C1:  MOVLW  48
+02C2:  MOVWF  78
+02C3:  IORLW  05
+02C4:  BCF    03.5
+02C5:  MOVWF  12
+02C6:  MOVLW  FF
+02C7:  BSF    03.5
+02C8:  MOVWF  12
+....................                                          // preruseni kazdych 10ms  
+....................    setup_adc_ports(sAN2|VSS_VDD);      // nastaveni A/D prevodniku pro naraznik  
+02C9:  BCF    1F.4
+02CA:  BCF    1F.5
+02CB:  MOVF   1B,W
+02CC:  ANDLW  80
+02CD:  IORLW  04
+02CE:  MOVWF  1B
+....................    setup_adc(ADC_CLOCK_INTERNAL);  
+02CF:  BCF    1F.6
+02D0:  BCF    03.5
+02D1:  BSF    1F.6
+02D2:  BSF    1F.7
+02D3:  BSF    03.5
+02D4:  BCF    1F.7
+02D5:  BCF    03.5
+02D6:  BSF    1F.0
+....................    set_adc_channel(2);  
+02D7:  MOVLW  10
+02D8:  MOVWF  78
+02D9:  MOVF   1F,W
+02DA:  ANDLW  C7
+02DB:  IORWF  78,W
+02DC:  MOVWF  1F
+....................    setup_timer_1(T1_INTERNAL|T1_DIV_BY_1);   // Casovac pro naraznik  
+02DD:  MOVLW  85
+02DE:  MOVWF  10
+....................    setup_ccp1(CCP_COMPARE_RESET_TIMER);  
+02DF:  BSF    03.5
+02E0:  BSF    06.3
+02E1:  MOVLW  0B
+02E2:  BCF    03.5
+02E3:  MOVWF  17
+....................    CCP_1=(2^10)-1;                        // prevod kazdou 1ms  
+02E4:  CLRF   16
+02E5:  MOVLW  07
+02E6:  MOVWF  15
+....................   
+....................    setup_comparator(A0_VR_A1_VR);   // inicializace komparatoru pro cidla cary  
+02E7:  MOVLW  02
+02E8:  BSF    03.5
+02E9:  MOVWF  1C
+02EA:  MOVF   05,W
+02EB:  IORLW  03
+02EC:  MOVWF  05
+02ED:  MOVLW  03
+02EE:  MOVWF  77
+02EF:  DECFSZ 77,F
+02F0:  GOTO   2EF
+02F1:  MOVF   1C,W
+02F2:  BCF    03.5
+02F3:  BCF    0D.6
+....................    setup_vref(VREF_HIGH|TRESHOLD);        // 32 kroku od 0.25 do 0.75 Vdd  
+02F4:  MOVLW  8F
+02F5:  BSF    03.5
+02F6:  MOVWF  1D
+....................   
+....................    Beep(1000,200);     //double beep  
+02F7:  MOVLW  03
+02F8:  BCF    03.5
+02F9:  MOVWF  5E
+02FA:  MOVLW  E8
+02FB:  MOVWF  5D
+02FC:  CLRF   60
+02FD:  MOVLW  C8
+02FE:  MOVWF  5F
+02FF:  CALL   055
+....................    Delay_ms(50);  
+0300:  MOVLW  32
+0301:  MOVWF  5E
+0302:  CALL   07B
+....................    Beep(1000,200);  
+0303:  MOVLW  03
+0304:  MOVWF  5E
+0305:  MOVLW  E8
+0306:  MOVWF  5D
+0307:  CLRF   60
+0308:  MOVLW  C8
+0309:  MOVWF  5F
+030A:  CALL   055
+....................    Delay_ms(1000);      // 1s  
+030B:  MOVLW  04
+030C:  MOVWF  5B
+030D:  MOVLW  FA
+030E:  MOVWF  5E
+030F:  CALL   07B
+0310:  DECFSZ 5B,F
+0311:  GOTO   30D
+....................   
+....................    // povoleni rizeni rychlosti zataceni pres preruseni  
+....................    enable_interrupts(INT_TIMER2);  
+0312:  BSF    03.5
+0313:  BSF    0C.1
+....................    enable_interrupts(GLOBAL);  
+0314:  MOVLW  C0
+0315:  BCF    03.5
+0316:  IORWF  0B,F
+....................   
+.................... /*---------------------------------------------------------------------------*/  
+....................    sensors=S;  
+0317:  MOVLW  03
+0318:  MOVWF  29
+....................    line=S;  
+0319:  MOVWF  2A
+....................    last=S;  
+031A:  MOVWF  2C
+....................    cirkus=0;  
+031B:  CLRF   2E
+.................... //   movement=S;  
+....................    speed=FW_POMALU;  
+031C:  MOVLW  AA
+031D:  MOVWF  2B
+....................   
+....................    diagnostika();  
+031E:  GOTO   090
+....................    Delay_ms(500);  
+031F:  MOVLW  02
+0320:  MOVWF  5B
+0321:  MOVLW  FA
+0322:  MOVWF  5E
+0323:  CALL   07B
+0324:  DECFSZ 5B,F
+0325:  GOTO   321
+....................    Beep(1000,200);  
+0326:  MOVLW  03
+0327:  MOVWF  5E
+0328:  MOVLW  E8
+0329:  MOVWF  5D
+032A:  CLRF   60
+032B:  MOVLW  C8
+032C:  MOVWF  5F
+032D:  CALL   055
+....................    Delay_ms(500);  
+032E:  MOVLW  02
+032F:  MOVWF  5B
+0330:  MOVLW  FA
+0331:  MOVWF  5E
+0332:  CALL   07B
+0333:  DECFSZ 5B,F
+0334:  GOTO   330
+....................   
+....................    while(true)       // hlavni smycka (jizda podle cary)  
+....................    {  
+....................       sensors = RSENSOR;         // cteni senzoru na caru  
+0335:  CLRF   29
+0336:  BSF    03.5
+0337:  BTFSC  1C.7
+0338:  GOTO   33C
+0339:  BCF    03.5
+033A:  INCF   29,F
+033B:  BSF    03.5
+....................       sensors |= LSENSOR << 1;  
+033C:  MOVLW  00
+033D:  BTFSS  1C.6
+033E:  MOVLW  01
+033F:  MOVWF  77
+0340:  BCF    03.0
+0341:  RLF    77,F
+0342:  MOVF   77,W
+0343:  BCF    03.5
+0344:  IORWF  29,F
+....................   
+....................       if (read_adc(ADC_READ_ONLY)<BUMPER_TRESHOLD) OtocSe();  
+0345:  BTFSC  1F.2
+0346:  GOTO   345
+0347:  MOVF   1E,W
+0348:  SUBLW  7F
+0349:  BTFSC  03.0
+034A:  GOTO   1F0
+....................   
+....................       switch (sensors)  // zatacej podle toho, kde vidis caru  
+....................       {  
+034B:  MOVF   29,W
+034C:  XORLW  03
+034D:  BTFSC  03.2
+034E:  GOTO   356
+034F:  XORLW  01
+0350:  BTFSC  03.2
+0351:  GOTO   38B
+0352:  XORLW  03
+0353:  BTFSC  03.2
+0354:  GOTO   3C2
+0355:  GOTO   3F9
+....................          case S:                          // rovne  
+....................             GO(L, F, FW_STREDNE+rovinka); GO(R, F, FW_STREDNE+rovinka);  
+0356:  MOVF   01,W
+0357:  MOVWF  5B
+0358:  MOVLW  BE
+0359:  ADDWF  2D,W
+035A:  SUBWF  5B,W
+035B:  BTFSC  03.2
+035C:  GOTO   35F
+035D:  BTFSC  03.0
+035E:  GOTO   368
+035F:  BSF    03.5
+0360:  BCF    06.7
+0361:  BCF    03.5
+0362:  BCF    06.7
+0363:  BSF    03.5
+0364:  BCF    06.6
+0365:  BCF    03.5
+0366:  BSF    06.6
+0367:  GOTO   370
+0368:  BSF    03.5
+0369:  BCF    06.6
+036A:  BCF    03.5
+036B:  BCF    06.6
+036C:  BSF    03.5
+036D:  BCF    06.7
+036E:  BCF    03.5
+036F:  BCF    06.7
+0370:  MOVF   01,W
+0371:  MOVWF  5B
+0372:  MOVLW  BE
+0373:  ADDWF  2D,W
+0374:  SUBWF  5B,W
+0375:  BTFSC  03.2
+0376:  GOTO   379
+0377:  BTFSC  03.0
+0378:  GOTO   382
+0379:  BSF    03.5
+037A:  BCF    06.5
+037B:  BCF    03.5
+037C:  BCF    06.5
+037D:  BSF    03.5
+037E:  BCF    06.4
+037F:  BCF    03.5
+0380:  BSF    06.4
+0381:  GOTO   38A
+0382:  BSF    03.5
+0383:  BCF    06.4
+0384:  BCF    03.5
+0385:  BCF    06.4
+0386:  BSF    03.5
+0387:  BCF    06.5
+0388:  BCF    03.5
+0389:  BCF    06.5
+....................             continue;  
+038A:  GOTO   335
+....................          case L:                          // trochu vlevo  
+....................             GO(L, F, FW_POMALU+rovinka); GO(R, F, FW_STREDNE+rovinka);  
+038B:  MOVF   01,W
+038C:  MOVWF  5B
+038D:  MOVLW  AA
+038E:  ADDWF  2D,W
+038F:  SUBWF  5B,W
+0390:  BTFSC  03.2
+0391:  GOTO   394
+0392:  BTFSC  03.0
+0393:  GOTO   39D
+0394:  BSF    03.5
+0395:  BCF    06.7
+0396:  BCF    03.5
+0397:  BCF    06.7
+0398:  BSF    03.5
+0399:  BCF    06.6
+039A:  BCF    03.5
+039B:  BSF    06.6
+039C:  GOTO   3A5
+039D:  BSF    03.5
+039E:  BCF    06.6
+039F:  BCF    03.5
+03A0:  BCF    06.6
+03A1:  BSF    03.5
+03A2:  BCF    06.7
+03A3:  BCF    03.5
+03A4:  BCF    06.7
+03A5:  MOVF   01,W
+03A6:  MOVWF  5B
+03A7:  MOVLW  BE
+03A8:  ADDWF  2D,W
+03A9:  SUBWF  5B,W
+03AA:  BTFSC  03.2
+03AB:  GOTO   3AE
+03AC:  BTFSC  03.0
+03AD:  GOTO   3B7
+03AE:  BSF    03.5
+03AF:  BCF    06.5
+03B0:  BCF    03.5
+03B1:  BCF    06.5
+03B2:  BSF    03.5
+03B3:  BCF    06.4
+03B4:  BCF    03.5
+03B5:  BSF    06.4
+03B6:  GOTO   3BF
+03B7:  BSF    03.5
+03B8:  BCF    06.4
+03B9:  BCF    03.5
+03BA:  BCF    06.4
+03BB:  BSF    03.5
+03BC:  BCF    06.5
+03BD:  BCF    03.5
+03BE:  BCF    06.5
+....................             line=L;  
+03BF:  MOVLW  02
+03C0:  MOVWF  2A
+....................             continue;  
+03C1:  GOTO   335
+....................          case R:                          // trochu vpravo  
+....................             GO(R, F, FW_POMALU+rovinka); GO(L, F, FW_STREDNE+rovinka);  
+03C2:  MOVF   01,W
+03C3:  MOVWF  5B
+03C4:  MOVLW  AA
+03C5:  ADDWF  2D,W
+03C6:  SUBWF  5B,W
+03C7:  BTFSC  03.2
+03C8:  GOTO   3CB
+03C9:  BTFSC  03.0
+03CA:  GOTO   3D4
+03CB:  BSF    03.5
+03CC:  BCF    06.5
+03CD:  BCF    03.5
+03CE:  BCF    06.5
+03CF:  BSF    03.5
+03D0:  BCF    06.4
+03D1:  BCF    03.5
+03D2:  BSF    06.4
+03D3:  GOTO   3DC
+03D4:  BSF    03.5
+03D5:  BCF    06.4
+03D6:  BCF    03.5
+03D7:  BCF    06.4
+03D8:  BSF    03.5
+03D9:  BCF    06.5
+03DA:  BCF    03.5
+03DB:  BCF    06.5
+03DC:  MOVF   01,W
+03DD:  MOVWF  5B
+03DE:  MOVLW  BE
+03DF:  ADDWF  2D,W
+03E0:  SUBWF  5B,W
+03E1:  BTFSC  03.2
+03E2:  GOTO   3E5
+03E3:  BTFSC  03.0
+03E4:  GOTO   3EE
+03E5:  BSF    03.5
+03E6:  BCF    06.7
+03E7:  BCF    03.5
+03E8:  BCF    06.7
+03E9:  BSF    03.5
+03EA:  BCF    06.6
+03EB:  BCF    03.5
+03EC:  BSF    06.6
+03ED:  GOTO   3F6
+03EE:  BSF    03.5
+03EF:  BCF    06.6
+03F0:  BCF    03.5
+03F1:  BCF    06.6
+03F2:  BSF    03.5
+03F3:  BCF    06.7
+03F4:  BCF    03.5
+03F5:  BCF    06.7
+....................             line=R;  
+03F6:  MOVLW  01
+03F7:  MOVWF  2A
+....................             continue;  
+03F8:  GOTO   335
+....................          default:       // kdyz jsou obe cidla mimo caru, tak pokracuj dal  
+....................       };  
+....................       rovinka=0;  
+03F9:  CLRF   2D
+....................   
+....................       if (last!=line)     // pokud si prejel caru z jedne strany na druhou stranu, tak zabrzdi  
+03FA:  MOVF   2A,W
+03FB:  SUBWF  2C,W
+03FC:  BTFSC  03.2
+03FD:  GOTO   48F
+....................       {  
+....................          last=line;  
+03FE:  MOVF   2A,W
+03FF:  MOVWF  2C
+....................          speed=FW_ZATACKA;  
+0400:  MOVLW  C8
+0401:  MOVWF  2B
+....................          cirkus++;  
+0402:  INCF   2E,F
+....................          if (cirkus>10)  
+0403:  MOVF   2E,W
+0404:  SUBLW  0A
+0405:  BTFSC  03.0
+0406:  GOTO   48F
+....................          {  
+....................             STOPL; STOPR;  
+0407:  BSF    03.5
+0408:  BCF    06.6
+0409:  BCF    03.5
+040A:  BCF    06.6
+040B:  BSF    03.5
+040C:  BCF    06.7
+040D:  BCF    03.5
+040E:  BCF    06.7
+040F:  BSF    03.5
+0410:  BCF    06.4
+0411:  BCF    03.5
+0412:  BCF    06.4
+0413:  BSF    03.5
+0414:  BCF    06.5
+0415:  BCF    03.5
+0416:  BCF    06.5
+....................             cirkus=0;  
+0417:  CLRF   2E
+....................             disable_interrupts(GLOBAL);  
+0418:  BCF    0B.6
+0419:  BCF    0B.7
+041A:  BTFSC  0B.7
+041B:  GOTO   419
+....................             beep(1000,400);  
+041C:  MOVLW  03
+041D:  MOVWF  5E
+041E:  MOVLW  E8
+041F:  MOVWF  5D
+0420:  MOVLW  01
+0421:  MOVWF  60
+0422:  MOVLW  90
+0423:  MOVWF  5F
+0424:  CALL   055
+....................             for(n=3000; n>3950; n--) beep(n,10);  
+0425:  MOVLW  0B
+0426:  MOVWF  58
+0427:  MOVLW  B8
+0428:  MOVWF  57
+0429:  MOVF   58,W
+042A:  SUBLW  0E
+042B:  BTFSC  03.0
+042C:  GOTO   441
+042D:  XORLW  FF
+042E:  BTFSS  03.2
+042F:  GOTO   434
+0430:  MOVF   57,W
+0431:  SUBLW  6E
+0432:  BTFSC  03.0
+0433:  GOTO   441
+0434:  MOVF   58,W
+0435:  MOVWF  5E
+0436:  MOVF   57,W
+0437:  MOVWF  5D
+0438:  CLRF   60
+0439:  MOVLW  0A
+043A:  MOVWF  5F
+043B:  CALL   055
+043C:  MOVF   57,W
+043D:  BTFSC  03.2
+043E:  DECF   58,F
+043F:  DECF   57,F
+0440:  GOTO   429
+....................       	   beep(2000,200);  
+0441:  MOVLW  07
+0442:  MOVWF  5E
+0443:  MOVLW  D0
+0444:  MOVWF  5D
+0445:  CLRF   60
+0446:  MOVLW  C8
+0447:  MOVWF  5F
+0448:  CALL   055
+.................... 	         beep(900,400);  
+0449:  MOVLW  03
+044A:  MOVWF  5E
+044B:  MOVLW  84
+044C:  MOVWF  5D
+044D:  MOVLW  01
+044E:  MOVWF  60
+044F:  MOVLW  90
+0450:  MOVWF  5F
+0451:  CALL   055
+....................             for(n=2950; n<3000; n++) beep(n,10);  
+0452:  MOVLW  0B
+0453:  MOVWF  58
+0454:  MOVLW  86
+0455:  MOVWF  57
+0456:  MOVF   58,W
+0457:  SUBLW  0B
+0458:  BTFSS  03.0
+0459:  GOTO   46C
+045A:  BTFSS  03.2
+045B:  GOTO   460
+045C:  MOVF   57,W
+045D:  SUBLW  B7
+045E:  BTFSS  03.0
+045F:  GOTO   46C
+0460:  MOVF   58,W
+0461:  MOVWF  5E
+0462:  MOVF   57,W
+0463:  MOVWF  5D
+0464:  CLRF   60
+0465:  MOVLW  0A
+0466:  MOVWF  5F
+0467:  CALL   055
+0468:  INCF   57,F
+0469:  BTFSC  03.2
+046A:  INCF   58,F
+046B:  GOTO   456
+....................             beep(4000,400);  
+046C:  MOVLW  0F
+046D:  MOVWF  5E
+046E:  MOVLW  A0
+046F:  MOVWF  5D
+0470:  MOVLW  01
+0471:  MOVWF  60
+0472:  MOVLW  90
+0473:  MOVWF  5F
+0474:  CALL   055
+....................       	   beep(1000,100);  
+0475:  MOVLW  03
+0476:  MOVWF  5E
+0477:  MOVLW  E8
+0478:  MOVWF  5D
+0479:  CLRF   60
+047A:  MOVLW  64
+047B:  MOVWF  5F
+047C:  CALL   055
+.................... 	         beep(3000,400);  
+047D:  MOVLW  0B
+047E:  MOVWF  5E
+047F:  MOVLW  B8
+0480:  MOVWF  5D
+0481:  MOVLW  01
+0482:  MOVWF  60
+0483:  MOVLW  90
+0484:  MOVWF  5F
+0485:  CALL   055
+....................             Delay_ms(1000);  
+0486:  MOVLW  04
+0487:  MOVWF  5B
+0488:  MOVLW  FA
+0489:  MOVWF  5E
+048A:  CALL   07B
+048B:  DECFSZ 5B,F
+048C:  GOTO   488
+....................             enable_interrupts(GLOBAL);  
+048D:  MOVLW  C0
+048E:  IORWF  0B,F
+....................          }  
+....................       };  
+....................   
+....................       if (L==line)  // kdyz jsou obe cidla mimo caru, zatoc na caru  
+048F:  MOVF   2A,W
+0490:  SUBLW  02
+0491:  BTFSS  03.2
+0492:  GOTO   4B1
+....................       {  
+....................          STOPL;  
+0493:  BSF    03.5
+0494:  BCF    06.6
+0495:  BCF    03.5
+0496:  BCF    06.6
+0497:  BSF    03.5
+0498:  BCF    06.7
+0499:  BCF    03.5
+049A:  BCF    06.7
+....................          GO(R, F, speed);  
+049B:  MOVF   01,W
+049C:  SUBWF  2B,W
+049D:  BTFSS  03.0
+049E:  GOTO   4A8
+049F:  BSF    03.5
+04A0:  BCF    06.5
+04A1:  BCF    03.5
+04A2:  BCF    06.5
+04A3:  BSF    03.5
+04A4:  BCF    06.4
+04A5:  BCF    03.5
+04A6:  BSF    06.4
+04A7:  GOTO   4B0
+04A8:  BSF    03.5
+04A9:  BCF    06.4
+04AA:  BCF    03.5
+04AB:  BCF    06.4
+04AC:  BSF    03.5
+04AD:  BCF    06.5
+04AE:  BCF    03.5
+04AF:  BCF    06.5
+....................       }  
+....................       else  
+04B0:  GOTO   4CE
+....................       {  
+....................          STOPR;  
+04B1:  BSF    03.5
+04B2:  BCF    06.4
+04B3:  BCF    03.5
+04B4:  BCF    06.4
+04B5:  BSF    03.5
+04B6:  BCF    06.5
+04B7:  BCF    03.5
+04B8:  BCF    06.5
+....................          GO(L, F, speed);  
+04B9:  MOVF   01,W
+04BA:  SUBWF  2B,W
+04BB:  BTFSS  03.0
+04BC:  GOTO   4C6
+04BD:  BSF    03.5
+04BE:  BCF    06.7
+04BF:  BCF    03.5
+04C0:  BCF    06.7
+04C1:  BSF    03.5
+04C2:  BCF    06.6
+04C3:  BCF    03.5
+04C4:  BSF    06.6
+04C5:  GOTO   4CE
+04C6:  BSF    03.5
+04C7:  BCF    06.6
+04C8:  BCF    03.5
+04C9:  BCF    06.6
+04CA:  BSF    03.5
+04CB:  BCF    06.7
+04CC:  BCF    03.5
+04CD:  BCF    06.7
+....................       }  
+....................    } // while(true)  
+04CE:  GOTO   335
+.................... }  
+....................  
+04CF:  SLEEP
+
+Configuration Fuses:
+   Word  1: 3F38   NOWDT NOPUT MCLR NOBROWNOUT NOLVP NOCPD NOWRT NODEBUG CCPB0 NOPROTECT INTRC_IO
+   Word  2: 3FFC   NOFCMEN NOIESO
