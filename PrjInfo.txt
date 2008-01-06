@@ -1,0 +1,19 @@
+﻿//
+// Toto je popisný soubor pro popis obsahu adresáře (příklad)
+//
+
+[InfoShortDescription.en]
+  Robot Merkur
+
+[InfoShortDescription.cs]
+  Robot Merkur
+  
+[InfoLongDescription.en]
+  Robot Mercur was built for ISTROBOT 2005 competition.
+  The robot is clasical line follower.
+
+[InfoLongDescription.cs]
+  Čárový robot Merkur byl postaven jako soutěžní robot na soutěž 
+  ISTROBOT 2005.
+
+[End]
