@@ -9,8 +9,8 @@
   Robot Merkur
   
 [InfoLongDescription.en]
-  Robot Mercur was built for ISTROBOT 2005 competition.
-  The robot is clasical line follower.
+  Robot Merkur was built for ISTROBOT 2005 competition.
+  The robot is classic line follower.
 
 [InfoLongDescription.cs]
   Čárový robot Merkur byl postaven jako soutěžní robot na soutěž 
